@@ -1,6 +1,5 @@
 <?php
 session_start();
-
 if (!isset($_SESSION['login'])) {
     header("location:../login.php");
     exit;
@@ -39,6 +38,22 @@ if (!isset($_SESSION['login'])) {
                     </div>
                 </div>
 
+                <?php
+                include "../config/config.php";
+
+                if ($_SESSION['role'] === 'admin') {
+                    $sql = "SELECT username FROM user WHERE is_active = 1 AND role = 'petugas'";
+                    $result = mysqli_query($koneksi, $sql);
+
+                    echo "<div class='card mb-4'><div class='card-body'>";
+                    echo "<h5 class='mb-2'>Petugas yang Aktif:</h5><ul>";
+                    while ($row = mysqli_fetch_assoc($result)) {
+                        echo "<li>{$row['username']} (aktif)</li>";
+                    }
+                    echo "</ul></div></div>";
+                }
+                ?>
+
                 <div class="card dashboard-card mb-4">
                     <div class="card-body">
                         <div class="row align-items-center">
@@ -57,31 +72,37 @@ if (!isset($_SESSION['login'])) {
 
                 <div class="row g-4">
                     <?php
-                    include "../config/config.php";
                     $qJenis = mysqli_query($koneksi, "SELECT * FROM jenisKendaraan");
                     while ($j = mysqli_fetch_assoc($qJenis)) {
                         $id = $j['id_jenisKendaraan'];
                         $kapasitas = $j['kapasitas_slot'];
-                        $terparkir = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT COUNT(*) as total FROM kendaraan_masuk WHERE id_jenisKendaraan = '$id'"))['total'];
+                        $terparkir = mysqli_fetch_assoc(
+                            mysqli_query($koneksi, "SELECT COUNT(*) as total 
+                                                    FROM kendaraan_masuk 
+                                                    WHERE id_jenisKendaraan = '$id'")
+                        )['total'];
                         $persentase = ($terparkir / $kapasitas) * 100;
-                        
+
                         echo '<div class="col-md-4">
-                            <div class="card dashboard-card h-100">
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between align-items-center mb-3">
-                                        <h6 class="mb-0 fw-semibold">'.$j['jenis_kendaraan'].'</h6>
-                                        <span class="badge bg-primary-light text-primary rounded-pill">'.$terparkir.'/'.$kapasitas.'</span>
-                                    </div>
-                                    <div class="progress mb-3" style="height: 8px;">
-                                        <div class="progress-bar bg-primary" role="progressbar" style="width: '.$persentase.'%" aria-valuenow="'.$persentase.'" aria-valuemin="0" aria-valuemax="100"></div>
-                                    </div>
-                                    <div class="d-flex justify-content-between small">
-                                        <span class="text-muted">Terisi</span>
-                                        <span class="text-primary fw-semibold">'.($kapasitas - $terparkir).' Slot Tersedia</span>
+                                <div class="card dashboard-card h-100">
+                                    <div class="card-body">
+                                        <div class="d-flex justify-content-between align-items-center mb-3">
+                                            <h6 class="mb-0 fw-semibold">'.$j['jenis_kendaraan'].'</h6>
+                                            <span class="badge bg-primary-light text-primary rounded-pill">'
+                                                .$terparkir.'/'.$kapasitas.
+                                            '</span>
+                                        </div>
+                                        <div class="progress mb-3" style="height: 8px;">
+                                            <div class="progress-bar bg-primary" role="progressbar" style="width: '
+                                                .$persentase.'%" aria-valuenow="'.$persentase.'" aria-valuemin="0" aria-valuemax="100"></div>
+                                        </div>
+                                        <div class="d-flex justify-content-between small">
+                                            <span class="text-muted">Terisi</span>
+                                            <span class="text-primary fw-semibold">'.($kapasitas - $terparkir).' Slot Tersedia</span>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        </div>';
+                            </div>';
                     }
                     ?>
                 </div>
