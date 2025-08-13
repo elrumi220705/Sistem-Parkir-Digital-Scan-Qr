@@ -17,12 +17,7 @@
                 </li>
 
                 <!-- Form pencarian -->
-                <li class="nav-item">
-                    <form class="d-flex" action="index.php" method="GET">
-                        <input class="form-control me-2" type="search" name="cari" placeholder="Cari kendaraan..." aria-label="Search">
-                        <button class="btn btn-outline-primary" type="submit"><i class="bi bi-search"></i></button>
-                    </form>
-                </li>
+        
 
                 <li class="nav-item ms-lg-3">
                     <a class="btn btn-outline-primary btn-sm" href="login.php"><i class="bi bi-box-arrow-in-right me-1"></i> Login</a>

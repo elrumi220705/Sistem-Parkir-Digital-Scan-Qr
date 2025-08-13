@@ -17,6 +17,7 @@ if (isset($_GET['cari']) && $_GET['cari'] != '') {
 }
 
 
+// AJAX hitung tarif
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['kode_unik']) && isset($_SERVER['HTTP_X_REQUESTED_WITH']) && strtolower($_SERVER['HTTP_X_REQUESTED_WITH']) === 'xmlhttprequest') {
     $kode = mysqli_real_escape_string($koneksi, $_POST['kode_unik']);
     $cek = mysqli_query($koneksi, "
@@ -56,9 +57,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['kode_unik']) && isset
     exit;
 }
 ?>
-
 <!doctype html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -68,67 +68,92 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['kode_unik']) && isset
     <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        .pagination {
-            display: flex;
-            justify-content: center;
-            margin-top: 20px;
-        }
-        .pagination a, .pagination span {
-            color: #333;
-            padding: 8px 16px;
-            text-decoration: none;
-            border: 1px solid #ddd;
-            margin: 0 4px;
-            border-radius: 4px;
-            transition: all 0.3s ease;
-        }
-        .pagination a:hover {
-            background-color: #4361ee;
-            color: white;
-            border-color: #4361ee;
-        }
-        .pagination .active {
-            background-color: #4361ee;
-            color: white;
-            border-color: #4361ee;
-        }
-        .pagination .disabled {
-            color: #ddd;
-            pointer-events: none;
-        }
-        
-        /* Modal Styles */
-        .modal-header {
-            border-bottom: none;
-            padding-bottom: 0;
-        }
-        .modal-footer {
-            border-top: none;
-            padding-top: 0;
-        }
-        .biaya-detail {
-            background-color: #f8f9fa;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 15px;
-        }
-        .biaya-detail-item {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-        }
-        .biaya-total {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #4361ee;
-        }
-        .kode-badge {
-            background-color: #e8f4fd;
-            color: #4361ee;
-            padding: 3px 8px;
-            border-radius: 10px;
-            font-size: 0.8rem;
-        }
+      :root{
+        --bg:#f5f7fb;
+        --card:#ffffff;
+        --text:#1f2937;
+        --muted:#6b7280;
+        --primary:#4361ee;
+        --primary-50:#eef2ff;
+        --primary-100:#e8f0ff;
+        --ring:0 1px 2px rgba(16,24,40,.04),0 4px 12px rgba(16,24,40,.06);
+        --ring-strong:0 10px 25px rgba(67,97,238,.15);
+        --radius:14px;
+      }
+      body{ background:var(--bg); font-family: 'Poppins',system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial; color:var(--text); }
+
+      /* Hero */
+      .hero-section{
+        background: radial-gradient(1200px 400px at 10% -10%, var(--primary-100), transparent),
+                    linear-gradient(0deg, #fff, #fff);
+        border-radius: var(--radius);
+        box-shadow: var(--ring);
+      }
+      .hero-section .lead{ color:var(--muted); }
+
+      /* Card */
+      .card{ border-radius: var(--radius); border:0; box-shadow: var(--ring); }
+      .card:hover{ box-shadow: var(--ring-strong); transform: translateY(-1px); transition: .25s ease; }
+
+      /* Badge soft */
+      .badge-soft{
+        background: var(--primary-50);
+        color: var(--primary);
+        border:1px solid #e5e7ff;
+        padding:.4rem .55rem;
+      }
+
+      /* Progress */
+      .progress{ background:#eef2f7; border-radius:999px; overflow:hidden; }
+      .progress-bar{ background:linear-gradient(90deg, var(--primary), #5a78ff); }
+
+      /* Table */
+      .table thead th{ font-weight:600; color:#374151; border-bottom:1px solid #eef2f7; background:#fbfcff; }
+      .table tbody tr{ transition:.15s ease; }
+      .table tbody tr:hover{ background:#f9fbff; }
+      .table td, .table th{ vertical-align: middle; }
+      @media (min-width: 992px){
+        .table thead th{ position: sticky; top:0; z-index:1; }
+      }
+
+      /* Pagination – pills */
+      .pagination{ gap:6px; justify-content:center; padding:18px; }
+      .pagination a, .pagination span{
+        display:inline-flex; align-items:center; justify-content:center;
+        min-width:40px; height:40px; padding:0 14px;
+        border-radius:999px; border:1px solid #e5e7eb; background:#fff; color:#374151;
+        text-decoration:none; transition:.2s ease; box-shadow: var(--ring);
+      }
+      .pagination a:hover{ border-color:var(--primary); color:#fff; background:var(--primary); }
+      .pagination .active{ border-color:var(--primary); color:#fff; background:var(--primary); }
+      .pagination .disabled{ opacity:.5; pointer-events:none; }
+
+      /* Modal */
+      .modal-content{ border-radius: 18px; box-shadow: var(--ring-strong); }
+      .modal-header, .modal-footer{ border:0; }
+      .biaya-detail{
+        background:#fbfcff; border:1px dashed #e3e8ff; border-radius:12px; padding:16px;
+      }
+      .biaya-detail-item{ display:flex; justify-content:space-between; gap:12px; margin-bottom:10px; }
+      .biaya-total{ color:var(--primary); font-weight:700; }
+
+      /* Inputs & buttons */
+      .input-group-text.soft, .form-control.soft{ border-radius:12px; border:1px solid #e5e7eb; }
+      .input-group-text.soft{ background:#f6f7fb; }
+      .form-control.soft:focus{ border-color:var(--primary); box-shadow:0 0 0 .2rem rgba(67,97,238,.15); }
+      .btn-primary{ border-radius:12px; padding:.65rem 1rem; }
+      .btn-outline-primary{ border-radius:12px; }
+
+      /* Soft helpers (mengganti yang sebelumnya) */
+      .bg-primary-light{ background: var(--primary-50) !important; }
+      .border-primary-light{ border-color: #e5e7ff !important; }
+      .text-primary{ color: var(--primary) !important; }
+
+      /* Sticky side card padding fix mobile */
+      @media (max-width: 991.98px){ .sticky-top{ position: static; } }
+
+      /* QR */
+      #reader{ border-radius:14px; overflow:hidden; box-shadow: var(--ring); }
     </style>
 </head>
 <body>
@@ -147,20 +172,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['kode_unik']) && isset
                 $qJenis = mysqli_query($koneksi, "SELECT * FROM jenisKendaraan");
                 while ($j = mysqli_fetch_assoc($qJenis)) {
                     $id = $j['id_jenisKendaraan'];
-                    $kapasitas = $j['kapasitas_slot'];
-                    $terparkir = mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT COUNT(*) as total FROM kendaraan_masuk WHERE id_jenisKendaraan = '$id'"))['total'];
+                    $kapasitas = (int)$j['kapasitas_slot'];
+                    $terparkir = (int)mysqli_fetch_assoc(mysqli_query($koneksi, "SELECT COUNT(*) as total FROM kendaraan_masuk WHERE id_jenisKendaraan = '$id'"))['total'];
                     $sisa = max(0, $kapasitas - $terparkir);
-                    $persentase = ($terparkir / $kapasitas) * 100;
+                    $persentase = $kapasitas > 0 ? ($terparkir / $kapasitas) * 100 : 0;
                     
                     echo '<div class="col-md-6 col-xl-4">
-                        <div class="card stat-card h-100 border-0 shadow-sm">
+                        <div class="card stat-card h-100">
                             <div class="card-body p-3">
                                 <div class="d-flex justify-content-between align-items-center mb-2">
                                     <h6 class="card-title mb-0 fw-semibold">'.$j['jenis_kendaraan'].'</h6>
-                                    <span class="badge bg-primary-light text-primary rounded-pill">'.$terparkir.'/'.$kapasitas.'</span>
+                                    <span class="badge badge-soft rounded-pill">'.$terparkir.'/'.$kapasitas.'</span>
                                 </div>
                                 <div class="progress mb-2" style="height: 8px;">
-                                    <div class="progress-bar bg-primary" role="progressbar" style="width: '.$persentase.'%" aria-valuenow="'.$persentase.'" aria-valuemin="0" aria-valuemax="100"></div>
+                                    <div class="progress-bar" role="progressbar" style="width: '.$persentase.'%" aria-valuenow="'.$persentase.'" aria-valuemin="0" aria-valuemax="100"></div>
                                 </div>
                                 <div class="d-flex justify-content-between small">
                                     <span class="text-muted">Terisi</span>
@@ -175,12 +200,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['kode_unik']) && isset
 
             <div class="card border-0 shadow-sm mb-4">
                 <div class="card-header bg-white border-0 py-3">
-                    <div class="d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0 fw-semibold"><i class="bi bi-car-front-fill text-primary me-2"></i>Kendaraan Parkir</h5>
-                        <div>
-                            <span class="badge bg-primary text-white">Total: <?= $total ?> kendaraan</span>
-                        </div>
+                  <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
+                    <h5 class="mb-0 fw-semibold">
+                      <i class="bi bi-car-front-fill text-primary me-2"></i>Kendaraan Parkir
+                    </h5>
+
+                    <form class="d-flex gap-2" method="get">
+                      <div class="input-group">
+                        <span class="input-group-text soft"><i class="bi bi-search"></i></span>
+                        <input type="text" name="cari" value="<?= isset($_GET['cari'])?htmlspecialchars($_GET['cari']):'' ?>" class="form-control soft" placeholder="Cari nama kendaraan...">
+                      </div>
+                      <button class="btn btn-primary" type="submit">Cari</button>
+                    </form>
+
+                    <div>
+                      <span class="badge badge-soft rounded-pill">Total: <?= $total ?> kendaraan</span>
                     </div>
+                  </div>
                 </div>
                 <div class="card-body p-0">
                     <div class="table-responsive">
@@ -205,29 +241,37 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['kode_unik']) && isset
                                 LIMIT $start, $per_page
                             ");                         
                             $no = $start + 1;
-                            while ($k = mysqli_fetch_assoc($dataParkir)) {
-                                $waktu_masuk = new DateTime($k['waktu_masuk']);
-                                $sekarang = new DateTime();
-                                $durasi = $waktu_masuk->diff($sekarang);
-                                
-                                echo "<tr>
-                                        <td class='ps-4'>$no</td>
-                                        <td>{$k['nama_kendaraan']}</td>
-                                        <td><span class='badge bg-primary-light text-primary rounded-pill'>{$k['jenis_kendaraan']}</span></td>
-                                        <td>" . $waktu_masuk->format('d/m/Y H:i') . "</td>
-                                        <td class='pe-4'>";
-                                
-                                if ($durasi->d > 0) echo $durasi->d . ' hari ';
-                                if ($durasi->h > 0) echo $durasi->h . ' jam ';
-                                echo $durasi->i . ' menit';
-                                
-                                echo "</td>
-                                      </tr>";
-                                $no++;
-                            }
-                            
-                            if (mysqli_num_rows($dataParkir) == 0) {
-                                echo '<tr><td colspan="5" class="text-center py-4">Tidak ada kendaraan parkir</td></tr>';
+                            if (mysqli_num_rows($dataParkir) > 0) {
+                                while ($k = mysqli_fetch_assoc($dataParkir)) {
+                                    $waktu_masuk = new DateTime($k['waktu_masuk']);
+                                    $sekarang = new DateTime();
+                                    $durasi = $waktu_masuk->diff($sekarang);
+                                    
+                                    echo "<tr>
+                                            <td class='ps-4'>$no</td>
+                                            <td>".htmlspecialchars($k['nama_kendaraan'])."</td>
+                                            <td><span class='badge badge-soft rounded-pill'>".htmlspecialchars($k['jenis_kendaraan'])."</span></td>
+                                            <td>" . $waktu_masuk->format('d/m/Y H:i') . "</td>
+                                            <td class='pe-4'>";
+                                    
+                                    if ($durasi->d > 0) echo $durasi->d . ' hari ';
+                                    if ($durasi->h > 0) echo $durasi->h . ' jam ';
+                                    echo $durasi->i . ' menit';
+                                    
+                                    echo "</td>
+                                          </tr>";
+                                    $no++;
+                                }
+                            } else {
+                                echo '<tr><td colspan="5" class="text-center py-5">
+                                  <div class="d-inline-flex align-items-center gap-3 px-4 py-3 rounded-3" style="background:#f8fafc;border:1px dashed #e5e7eb">
+                                    <i class="bi bi-inbox" style="font-size:22px;color:#9ca3af"></i>
+                                    <div class="text-start">
+                                      <div class="fw-semibold" style="color:#374151">Tidak ada kendaraan parkir</div>
+                                      <div class="small" style="color:#6b7280">Data baru akan muncul saat ada kendaraan masuk.</div>
+                                    </div>
+                                  </div>
+                                </td></tr>';
                             }
                             ?>
                             </tbody>
@@ -236,7 +280,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['kode_unik']) && isset
                     
                     <div class="pagination p-3">
                         <?php if ($page > 1): ?>
-                            <a href="?page=<?= $page - 1 ?>">&laquo;</a>
+                            <a href="?page=<?= $page - 1 ?><?= isset($_GET['cari']) ? '&cari='.urlencode($_GET['cari']) : '' ?>">&laquo;</a>
                         <?php else: ?>
                             <span class="disabled">&laquo;</span>
                         <?php endif; ?>
@@ -246,22 +290,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['kode_unik']) && isset
                         $end_page = min($pages, $page + 2);
                         
                         if ($start_page > 1) {
-                            echo '<a href="?page=1">1</a>';
+                            echo '<a href="?page=1'.(isset($_GET['cari']) ? '&cari='.urlencode($_GET['cari']) : '').'">1</a>';
                             if ($start_page > 2) echo '<span>...</span>';
                         }
                         
                         for ($i = $start_page; $i <= $end_page; $i++): ?>
-                            <a href="?page=<?= $i ?>" <?= ($i == $page) ? 'class="active"' : '' ?>><?= $i ?></a>
+                            <a href="?page=<?= $i ?><?= isset($_GET['cari']) ? '&cari='.urlencode($_GET['cari']) : '' ?>" <?= ($i == $page) ? 'class="active"' : '' ?>><?= $i ?></a>
                         <?php endfor;
                         
                         if ($end_page < $pages) {
                             if ($end_page < $pages - 1) echo '<span>...</span>';
-                            echo '<a href="?page='.$pages.'">'.$pages.'</a>';
+                            echo '<a href="?page='.$pages.(isset($_GET['cari']) ? '&cari='.urlencode($_GET['cari']) : '').'">'.$pages.'</a>';
                         }
                         ?>
                         
                         <?php if ($page < $pages): ?>
-                            <a href="?page=<?= $page + 1 ?>">&raquo;</a>
+                            <a href="?page=<?= $page + 1 ?><?= isset($_GET['cari']) ? '&cari='.urlencode($_GET['cari']) : '' ?>">&raquo;</a>
                         <?php else: ?>
                             <span class="disabled">&raquo;</span>
                         <?php endif; ?>
@@ -279,8 +323,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['kode_unik']) && isset
                         <div class="mb-3">
                             <label for="kode_unik" class="form-label small fw-semibold">Masukkan Kode Unik</label>
                             <div class="input-group">
-                                <span class="input-group-text bg-primary-light border-primary-light"><i class="bi bi-upc-scan text-primary"></i></span>
-                                <input type="text" name="kode_unik" id="kode_unik" class="form-control border-primary-light" placeholder="PKR-1234" required>
+                                <span class="input-group-text soft"><i class="bi bi-upc-scan text-primary"></i></span>
+                                <input type="text" name="kode_unik" id="kode_unik" class="form-control soft" placeholder="PKR-1234" required>
                             </div>
                         </div>
                         <button type="submit" class="btn btn-primary w-100 mb-3">
@@ -300,17 +344,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['kode_unik']) && isset
         </div>
     </div>
 </div>
+
+<!-- Modal Tarif -->
 <div class="modal fade" id="tarifModal" tabindex="-1" aria-labelledby="tarifModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal-header">
                 <h5 class="modal-title fw-semibold" id="tarifModalLabel"><i class="bi bi-receipt-cutoff text-primary me-2"></i>Detail Tarif Parkir</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Tutup"></button>
             </div>
             <div class="modal-body">
                 <div class="d-flex justify-content-between align-items-center mb-3">
                     <span class="text-muted">Kode Unik:</span>
-                    <span id="modalKode" class="kode-badge"></span>
+                    <span id="modalKode" class="badge badge-soft rounded-pill"></span>
                 </div>
                 <div class="biaya-detail">
                     <div class="biaya-detail-item">
